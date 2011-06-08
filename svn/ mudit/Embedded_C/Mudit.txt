@@ -1,0 +1,155 @@
+/* Specifications
+
+Microcontroller: Atmel ATMEGA 16
+Compiler           : WinAVR
+Programmer     : SinaProg, AVRDude
+IDE                   : Ecllipse for AVR
+Hardware         : Progin SR-91 based GPS module with a Max 232
+	          external interrupt INT0 used. Check wiki for details
+
+Description: This program takes all the strings from the GPS
+and prints the coordinates. Itcan send the coordinated to another
+device through SPI. Contact mudit.raaj.gupta@gmail.com
+for clarification and header files
+
+@Author : Mudit Raj Gupta*/
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include "lcd_lib.h"
+#include <stdio.h>
+#include <string.h>
+#include "uart_lib.h"
+#include <avr/interrupt.h>
+#include <string.h>
+#include <ext_interrupt.h>
+
+    int i=0;
+    int flag=0;
+    int j=0;
+    int sendCoordinates=0;
+    char a[5];
+    char d;
+    char b[] = "Mudit";
+    int ready=0;
+
+    char stop_GLL[] = "$PSRF103,01,00,00,01*25";
+    char stop_GSA[] = "$PSRF103,02,00,00,01*26";
+    char stop_GSV[] = "$PSRF103,03,00,00,01*27";
+    char stop_RMC[] = "$PSRF103,04,00,00,01*20";
+    char stop_VTG[] = "$PSRF103,05,00,00,01*21";
+    char coordinates [23];
+    char storedCoordi [23];
+
+
+int main()
+{
+
+    DDRB=0xff;
+    LCDinit();
+    LCDclr();
+
+    //Setting SPI
+    		set_spi_prescalar(3);
+        	set_spi_slave();
+        	set_spi_lsbfirst();
+        	set_spi_clkpolarity(1);
+        	set_spi_clkphase(1);
+        	DDRD=0xFF;
+
+        	//setting up the interrupt
+        	DDRD=0b11111011;
+            PORTD=0b00000100;
+
+            enable_INT0(2);
+
+
+    set_uartbaud(4800);
+
+//Blocking Strings
+
+   sendstring_uart(stop_GLL);
+      sendchar_uart(0x0D);
+      sendchar_uart(0x0a);
+          _delay_ms(2000);
+      sendstring_uart(stop_GSA);
+      sendchar_uart(0x0D);
+      sendchar_uart(0x0a);
+          _delay_ms(2000);
+      sendstring_uart(stop_GSV);
+      sendchar_uart(0x0D);
+      sendchar_uart(0x0a);
+          _delay_ms(2000);
+      sendstring_uart(stop_RMC);
+      sendchar_uart(0x0D);
+      sendchar_uart(0x0a);
+      _delay_ms(2000);
+      sendstring_uart(stop_VTG);
+      sendchar_uart(0x0D);
+      sendchar_uart(0x0a);
+      _delay_ms(2000);
+
+    //Send first msg
+
+    sei();
+     enable_uart_rxcint();
+
+    while(1)
+    {
+    	if(sendCoordinates==1&&ready==1)
+    			{
+    				cli();
+    				//SPI send
+    				for(i=0;i<10;i++)
+    					d=sendchar_spi(storedCoordi[i]);
+    				sendCoordinates=0;
+    				sei();
+    			}
+
+    }
+    }
+
+   ISR(USART_RXC_vect)
+    {
+
+	   d=UDR;
+	
+	   if(d=='$')
+        	{
+      		i=0;
+       		flag=1;
+              	}
+
+    	 if(flag==1)
+    	     	{
+    	     		if(i>17&&i<40)
+    	     		{
+    	     			coordinates[j]=d;
+						j++;
+    	     		}
+    	     	}
+    	 if(i==43)
+    	 {
+    		 LCDGotoXY(0,0);
+    		 for(j=0;j<16;j++)
+    		 {
+
+    			LCDsendChar(coordinates[j]);
+  			 sendchar_uart(coordinates[j]);
+    	     _delay_ms(1);
+    		 }
+    			 	 i=0;
+    			 	 flag=0;
+    			 	 for(j=0;j<23;j++)
+    			 		 storedCoordi[j]=coordinates[j];
+    			 	 j=0;
+    			 	 ready=1;
+    	 }
+    	i++;
+    }
+
+   ISR(INT0_vect)
+   {
+   	sendCoordinates=1;
+   }
+
