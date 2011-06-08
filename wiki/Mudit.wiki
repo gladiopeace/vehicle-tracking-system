@@ -1,0 +1,27 @@
+#summary Mudit's Introduction and Work
+
+
+=*General Information*=
+ 
+
+ * University: Birla Institute of Technology and Science – Pilani (http://www.bits-pilani.ac.in/) 
+
+ * Campus: Goa Campus (http://www.bits-goa.ac.in/) 
+
+ * Time Zone: +5:30 GMT (Indian Standard Time (IST))
+
+ * E-Mail: mudit.raaj.gupta@gmail.com, f2008585@bits-goa.ac.in 
+
+ * Skype: mudit.raaj.gupta
+ 
+ * Gmail: mudit.raaj.gupta 
+
+
+=*Introduction*=
+
+ 
+I am a 6th semester student on Birla Institute of Technology and Science – Pilani studying at Goa Campus, I am simultaneously working for my Master’s degree in Chemistry and Bachelor’s degree in Electronics and Instrumentation Engineering. 
+
+I am interested in swarm robotics and embedded systems. A related field that interests me is Claytronics. It is about self-assembly of many modular robots to create synthetic reality. My recent work is centered on a new Wireless Sensor Network Platform and Mobile WSN. 
+
+I will be trying to use the GPS ans GSM/GPRS modules to maka a vehicle tracking system.
