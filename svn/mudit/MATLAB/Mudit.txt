@@ -1,0 +1,70 @@
+/*
+This is a MATLAB program
+It plots the current position on google maps
+It was made as a Test Program for the project.
+
+@Author: Mudit Raj Gupta */
+
+
+function GPS()
+
+//setting and opening the COM port
+s=serial('COM12','BaudRate',4800,'DataBits',8,'Terminator','CR/LF','Timeout',2);
+fopen(s);
+
+//Blocking String from the GPS Modules, Which are not required
+fprintf(s,'$PSRF103,01,00,00,01*25');
+fwrite(s,13); // Sends a Hex 0A
+fwrite(s,10); // Sends Enter
+fprintf(s,'$PSRF103,02,00,00,01*26');
+fwrite(s,13);
+fwrite(s,10);
+fprintf(s,'$PSRF103,03,00,00,01*27');
+fwrite(s,13);
+fwrite(s,10);
+fprintf(s,'$PSRF103,04,00,00,01*20');
+fwrite(s,13);
+fwrite(s,10);
+fprintf(s,'$PSRF103,05,00,00,01*21');
+fwrite(s,13);
+fwrite(s,10);
+
+//Infinite loop to refresh the coordinates (For real - time plot)
+while(1)
+
+a=fgetl(s)
+
+//keep on reading till start of string is encountered
+while(a(1)~='$')
+    a=fgetl(s);
+end    
+
+//Breaking the string into substring
+[stng,smthng,lat,n,long,e,s1,s2,s3,s4,s5,s6,s7,s8,s9] = strread(a,'%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s','delimiter',',')
+
+//Latitude and Longitude
+lat = char(lat)
+long = char(long)
+
+//Changing the Coordinates to Google MAps acceptable format
+lt='    ';
+lt(1:2)=lat(1:2);
+lt(4:9)=lat(3:8);
+lt=strcat(lt,n)
+ln='     ';
+ln(1:3)=long(1:3);
+ln(5:9)=long(4:8);
+ln=strcat(ln,e);
+plt=strcat(lt,', ',ln)
+
+//Setting the parameter in google maps
+url = strcat('http://maps.google.com/?q=',plt)
+url=char(url)
+
+//Opening MATLAB's Browser
+web (url);
+
+//delay of 1 second, so that the data is received correctly.
+pause(1);
+
+end
