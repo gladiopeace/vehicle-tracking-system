@@ -1,11 +1,12 @@
 /* Specifications
 
-Microcontroller: Atmel ATMEGA 16
+Microcontroller    : Atmel ATMEGA 16
 Compiler           : WinAVR
-Programmer     : SinaProg, AVRDude
-IDE                   : Ecllipse for AVR
-Hardware         : Progin SR-91 based GPS module with a Max 232
-	          external interrupt INT0 used. Check wiki for details
+Programmer         : SinaProg, AVRDude
+IDE                : Ecllipse for AVR
+Hardware           : Progin SR-91 based GPS module with a Max 232
+	                   external interrupt INT0 used. 
+                     Check wiki for details
 
 Description: This program takes all the strings from the GPS
 and prints the coordinates. Itcan send the coordinated to another
