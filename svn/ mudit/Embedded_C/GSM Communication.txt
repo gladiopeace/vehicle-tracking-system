@@ -1,0 +1,113 @@
+/* Specifications
+
+Microcontroller: Atmel ATMEGA 16
+Compiler           : WinAVR
+Programmer     : SinaProg, AVRDude
+IDE                   : Ecllipse for AVR
+Hardware         : Progin SR-91 based GPS module with a Max 232
+	          external interrupt INT0 used. Check wiki for details
+
+Description: This program sends a message to a presaved number. 
+The message contails a code. If the number sends back the code. The 
+vehicles sends the coordinates to the number. The coordinates used are 
+dummy. In the actual program the cordinates will be received through SPI 
+from the master by activating a interrupts. (Check other code files : 
+finalGSMslave) 
+Contact mudit.raaj.gupta@gmail.com for clarification and header files
+
+@Author : Mudit Raj Gupta*/
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <lcd_lib.h>
+#include <string.h>
+#include "uart_lib.h"
+#include <avr/interrupt.h>
+
+#define SM_PORT PORTD
+#define LED 4
+
+	char passenger[]="9935313596";
+	char code[]="1234";
+	char num_Rx[]="9370257792";
+	char receive[] = "SM";
+	char delete[]="AT+CMGD=16";
+	char send[] = "AT+CMGS=+91";
+	char read[] = "AT+CMGR=16";
+	char msg[] = "Cab Number: UP78CA5246 (send the code          to track) is boarded by";
+	char d[4];
+	char coordinate[]="xxxxxyyyyy";
+	int	readMsg=0;
+	int i;
+	int j;
+
+void main()
+{
+
+
+	LCDinit();
+	LCDclr();
+
+	DDRD=0b11111111;
+	PORTD=0b11111111;
+
+	          set_uartbaud(9600);
+	          	sendstring_uart(send);
+		       	sendstring_uart(num_Rx);
+	              sendstring_uart(code);
+	              sendstring_uart(msg);
+	              sendstring_uart(passenger);
+	              sendchar_uart(0x1A);
+
+	              sei();
+                	enable_uart_rxcint();
+    while(1)
+	{
+	}
+}
+
+ISR(USART_RXC_vect)
+{
+   	d[i]=UDR;
+   	i++;
+
+    LCDGotoXY(0,0);
+   	   	  LCDsendChar(d[i]);
+   	   	  _delay_ms(1000);
+   	//If received
+   	if(i==2)
+   	{
+   		if(strncmp(receive,d,2)==0)
+   		{
+   			sendstring_uart(read);
+   			sendchar_uart(0x01);
+   			i=0;
+   			readMsg = 1;
+   		}
+
+   	}
+
+   	if(readMsg==1&&i==4)
+   	{
+   	//Decode and compare
+
+   	//receivedMsg = substring(d,,);
+   	if(strncmp(d,code,4)==0)
+   	{
+   			readMsg=0;
+   					//send coordinates
+   					sendstring_uart(send);
+   					sendstring_uart(num_Rx);
+   					sendstring_uart(coordinate);
+   				    sendchar_uart(0x01);
+   	}
+   	}
+   	if(i==4)
+   	{
+      		i=0;
+      		sendstring_uart(delete);
+      		sendchar_uart(0x0A);
+   	}
+}
+
+
