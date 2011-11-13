@@ -1,0 +1,143 @@
+/* Specifications
+
+Project             : Vehicle Tracking System
+Company             : Simplifix Automation Pvt. Ltd.
+Project URL         : http://code.google.com/p/vehicle-tracking-system/
+Microcontroller		: Atmel ATMEGA 16
+Compiler            : WinAVR
+Programmer     		: SinaProg, AVRDude
+IDE                 : Ecllipse for AVR
+Hardware         	: External interrupt INT0 used. 
+                      Check http://code.google.com/p/vehicle-tracking-system/w/list 
+                      for details
+
+Description: This program sends an initilization message to the GSM slave which is
+transmitted to the control center. Then the GPS slaves can control a hardware interrupt
+to get the GPS coordinates. The pin used are defined as constant and most of the code
+is self explanatory.   
+Contact mudit.raaj.gupta@gmail.com for clarification and header files
+
+@Author : Mudit Raj Gupta
+
+*/
+
+#include <avr/io.h>
+#include <stdlib.h>
+#include <util/delay.h>
+#include <lcd_lib.h>
+#include <avr/interrupt.h>
+#include <ext_interrupt.h>
+
+#define SPI_PORT PORTB //SPI Communication
+#define SS1 4 //GSM Slave
+#define SS2 3 //GPS Slave
+#define GPS 3 //GPS Slave Interrupt
+
+volatile int getCoordinates=0; //global variable
+char vehicleID[13] = "Dummy Truck 1";
+char coordinates[23];
+int i;
+
+void GSMsend(void);
+void initialize(void);
+void GPSCoordinates(void);
+
+int main(void)
+{
+
+	//Intterupts
+	DDRD=0b11111011;
+	PORTD=0b00000100;
+
+	
+  //set SPI
+  set_spi_prescalar(3);
+  set_spi_master();
+  set_spi_lsbfirst();
+  set_spi_clkpolarity(1);
+  set_spi_clkphase(1);
+
+  //set LCD
+  LCDinit();
+  LCDclr();
+
+  initalize();
+  //set interrupt
+  enable_INT0(2);
+  sei();
+
+
+  while(1)
+  {
+
+	  _delay_ms(5000);
+
+	  //get the GPS Coordinates
+    if(getCoordinates==1)
+	{
+	      cli();
+         GPSCoordinates();
+		 sei();
+		 getCoordinates=0;
+	}
+  }
+
+ return 0;
+}
+
+void initalize()
+{
+	LCDclr();
+	LCDGotoXY(0,0);
+	LCDstring("INITIALIZE",10);
+	SPI_PORT&=~(1<<SS1);
+ 	  _delay_ms(1);
+ 	 for(i=0;i<13;i++)
+ 	 	    vehicleID[i]=sendchar_spi('*');
+   GPSCoordinates();
+   SPI_PORT|=(1<<SS1);
+	    _delay_ms(1);
+}
+
+void GPSCoordinates()
+{
+	          LCDclr();
+			  LCDGotoXY(0,0);
+			  LCDstring("GET CORDINATES",14);
+
+			  //call interrupt
+			  PORTD&=~(1<<GPS);
+			  _delay_ms(1);
+			  PORTD|=(1<<GPS);
+			  _delay_ms(1);
+
+			  SPI_PORT&=~(1<<SS2);
+			  _delay_ms(1);
+
+			  for(i=0;i<23;i++)
+			    coordinates[i]=sendchar_spi('*');
+
+			 SPI_PORT|=(1<<SS2);
+			 _delay_ms(1);
+			 GSMsend();
+}
+
+void GSMsend()
+{
+					char tmp;
+	              SPI_PORT&=~(1<<SS1);
+				  _delay_ms(1);
+
+				  for(i=0;i<23;i++)
+				    tmp=sendchar_spi(coordinates[i]);
+
+				 SPI_PORT|=(1<<SS1);
+				 _delay_ms(1);
+}
+
+ISR(INT0_vect)
+{
+	getCoordinates==1;
+}
+
+
