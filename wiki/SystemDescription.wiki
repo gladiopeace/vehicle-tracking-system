@@ -2,6 +2,7 @@
 
 = Introduction =
 
+Note: You can check out the code in the Source section, for header files contact me, info available on #Mudit
 
 The Overall system will work in a network. Each vehicle will send it’s location to a control centre and the control centre will process the data and will upload the coordinates on google maps, using google fusion tables. This will give an embedded link that can be placed on any website and anyone having a PDA, mobile phone or PC (any device with internet connectivity) can see the vehicle positions.
 
