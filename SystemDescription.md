@@ -1,0 +1,30 @@
+# Introduction #
+
+Note: You can check out the code in the Source section, for header files contact me, info available on #Mudit
+
+The Overall system will work in a network. Each vehicle will send it’s location to a control centre and the control centre will process the data and will upload the coordinates on google maps, using google fusion tables. This will give an embedded link that can be placed on any website and anyone having a PDA, mobile phone or PC (any device with internet connectivity) can see the vehicle positions.
+
+![http://vehicle-tracking-system.googlecode.com/svn/figu1.png](http://vehicle-tracking-system.googlecode.com/svn/figu1.png)
+
+# Positioning Device #
+
+Each Vehicle will have a positioning device. This device is based on AVR ATMEGA 16 microcontroller. Three controllers were used in the overall positioning device. Fig. 2 displays the block diagram. The overall system is a two slave and one master SPI. Both the GPS and the GSM models are connected to the GPS and GSM slaves respectively. The modules communicate through UART.
+
+![http://vehicle-tracking-system.googlecode.com/svn/figu2.png](http://vehicle-tracking-system.googlecode.com/svn/figu2.png)
+
+# Master #
+
+This program sends an initialization message to the GSM slave which is transmitted to the control center. Then the GPS slaves can control a hardware interrupt to get the GPS coordinates.
+
+# GPS Slave #
+
+This program sends few message to block the unwanted GPS strings and then it takes out the GPS coordinates from the GPS module, which is connected through UART and send it through SPI. Most of the code is self explanatory
+
+# GSM Slave #
+
+
+This program sends a message to the user and the user can track the vehicle by sending the message back. If the message is received, it will enable an interrupt in the Master controller to get the coordinates. Most of the code is self explanatory
+
+# Control Center #
+
+This MATLAB program sends a message to the vehicle and the vehicle is tracked in Real time. MATLAB is used to open the serial port, read data and open a web browser and finally display the position. Most of the code is self explanatory. Contact mudit.raaj.gupta@gmail.com for clarification and header files

@@ -1,0 +1,9 @@
+#Abstract
+
+# Introduction #
+
+The project deals with real time tracking of vehicle fleets and getting real time data on Google Maps through Google Maps API linkage using MATLAB. Each vehicle has a Positioning Device. This positioning device has two slaves and one master AVR controller, communicating through SPI. One slave has GPS module connected through UART and similarly the other slave is connected to the GSM Module through UART. A control center has a computer with a GSM module and MATLAB.
+
+MATLAB code iteratively sends messages to different Positioning Devices in all the vehicles and they get the GPS coordinates back through the Serial Port in the MATLAB program. Then Google Fusion Table API was linked with MATLAB and was used to automatically upload the .csv format Excel Sheet to it and plot on Google maps in real time. This Google Fusion table link was shared on a web page and anyone can track the positions of the vehicle.
+
+This project can be further expanded with the technologies like Android and Smart Phones. A Similar Android app can be created to extract the GPS coordinates and message it to a control center. The rest of the project will remain the same. This can be used for traffic density calculation and real time traffic estimate.
